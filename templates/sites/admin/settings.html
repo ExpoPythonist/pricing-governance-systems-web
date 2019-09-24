@@ -1,0 +1,74 @@
+{% extends "master.layout.html" %}
+
+{% block content %}
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">Admin</li>
+                <li class="breadcrumb-item active" aria-current="page">Settings</li>
+            </ol>
+        </nav>
+    </div>
+    <!--begin::Portlet-->
+    <div class="m-portlet">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">
+                        Settings
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <!--begin::Form-->
+        <form action="{% url "admin-settings" %}" class="m-form m-form--fit m-form--label-align-right" id="m_form_1"
+              method="post">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+                <div class="m-form__content">
+                    <div class="m-alert m-alert--icon alert alert-danger m--hide" role="alert" id="m_form_1_msg">
+                        <div class="m-alert__icon">
+                            <i class="la la-warning"></i>
+                        </div>
+                        <div class="m-alert__text">
+                            Oh snap! Change a few things up and try submitting again.
+                        </div>
+                        <div class="m-alert__close">
+                            <button type="button" class="close" data-close="alert" aria-label="Close">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group m-form__group row">
+                    <label class="col-form-label col-lg-3 col-sm-12" for="user_type">Default Volume *</label>
+                    <div class="col-lg-6 col-md-9 col-sm-12">
+                        <select class="form-control m-input m-input--square" name="volume"
+                                id="user_type">
+                            <option value="MT" {% if volume == "MT" %} selected="selected"{% endif %}>Metric Ton (MT)</option>
+                            <option value="KG" {% if volume == "KG" %} selected="selected"{% endif %}>Kilogram (KG)</option>
+                            <option value="LB" {% if volume == "LB" %} selected="selected"{% endif %}>Pound (LB)</option>
+                        </select>
+                        <span class="m-form__help">Please select volum type.</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="m-portlet__foot m-portlet__foot--fit">
+                <div class="m-form__actions m-form__actions">
+                    <div class="row">
+                        <div class="col-lg-9 ml-lg-auto">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                            <button type="reset" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!--end::Form-->
+    </div>
+
+    <!--end::Portlet-->
+{% endblock %}

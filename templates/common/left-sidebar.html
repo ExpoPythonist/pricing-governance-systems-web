@@ -1,0 +1,156 @@
+<button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn"><i
+        class="la la-close"></i></button>
+<div id="m_aside_left" class="m-grid__item	m-aside-left  m-aside-left--skin-light ">
+
+    <!-- BEGIN: Aside Menu -->
+    <div id="m_ver_menu" class="m-aside-menu  m-aside-menu--skin-light m-aside-menu--submenu-skin-light "
+         m-menu-vertical="1" m-menu-scrollable="1" m-menu-dropdown-timeout="500" style="position: relative;">
+        <ul class="m-menu__nav  m-menu__nav--dropdown-submenu-arrow ">
+
+            <!-- BEGIN: dashboard-->
+            <li class="m-menu__item  m-menu__item--submenu {% if request.get_full_path == '/upload-file' or active_dashboard %}m-menu__item--active {% endif %} m-menu__item--open"
+                aria-haspopup="true"
+                m-menu-submenu-toggle="hover">
+                <a href="javascript:;" class="m-menu__link m-menu__toggle">
+                    <i class="m-menu__link-icon flaticon-line-graph"></i>
+                    <span class="m-menu__link-text">Dashboard</span>
+                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                </a>
+                <div class="m-menu__submenu"><span class="m-menu__arrow"></span>
+                    <ul class="m-menu__subnav">
+                        {% comment %} <li class="m-menu__item" style="display: none;" id="draft-data-upload-status">
+                            <a href="javascript:;" class="m-menu__link"> {% endcomment %}
+                        {% comment %} <i class="m-menu__link-bullet m-menu__link-bullet--dot" id="def-icon" style="display:none;"><span></span></i> {% endcomment %}
+                        {% comment %} <span class="m-menu__link-text">
+                                 <i class="fa fa-spinner fa-spin" id="up-loader"></i>
+                                Work In Progress <span id="upload-complete-percentage"><span class="value font-weight-bold"></span></span></span> {% endcomment %}
+                        {% comment %} <div class="progress" style="height: 4px;margin-top: -18px;width: 100%;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated m--bg-info" id="data-process-progress-bar"  role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div> {% endcomment %}
+                        {% comment %} </a>
+                        </li> {% endcomment %}
+                        <li class="m-menu__item {% if request.get_full_path == '/upload-file' %}m-menu__item--active{% endif %}">
+                            <a href="{% url 'upload-file' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-upload"><span></span></i>
+                                <span class="m-menu__link-text">Upload file</span>
+                            </a>
+                        </li>
+
+                        {% if all_years %}
+                            {% for year_v in all_years %}
+                                <li class="m-menu__item {% if active_dashboard == year_v.year %}m-menu__item--active{% endif %}"
+                                    aria-haspopup="true">
+                                    <a href="{% url 'dashboard' year=year_v.year %}"
+                                       class="m-menu__link">
+                                        <i class="m-menu__link-icon flaticon-dashboard"><span></span></i>
+                                        <span class="m-menu__link-text">{{ year_v.year }} Dashboard</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+
+                    </ul>
+                </div>
+            </li>
+            <!-- END: dashboard-->
+
+            <!-- BEGIN: Visualization & Analytics -->
+            <li class="m-menu__item  m-menu__item--submenu {% if  active_page == 'product-scatter' or active_page == 'customer-scatter' or active_page == 'waterfall-chart' or active_page == 'histogram' %}m-menu__item--active{% endif %} m-menu__item--open"
+                aria-haspopup="true" m-menu-submenu-toggle="hover">
+                <a href="javascript:;" class="m-menu__link m-menu__toggle">
+                    <i class="m-menu__link-icon flaticon-diagram"></i>
+                    <span class="m-menu__link-text">Visualization & Analytics</span>
+                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                </a>
+                <div class="m-menu__submenu"><span class="m-menu__arrow"></span>
+                    <ul class="m-menu__subnav">
+
+                        <li class="m-menu__item {% if active_page == 'product-scatter' %}m-menu__item--active{% endif %}"
+                            aria-haspopup="true">
+                            <a href="{% url 'scatter-plot' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-analytics"><span></span></i>
+                                <span class="m-menu__link-text">Product Scatter Plot</span>
+                            </a>
+                        </li>
+
+                        <!-- <li class="m-menu__item {% if active_page == 'customer-scatter' %}m-menu__item--active{% endif %}"
+                            aria-haspopup="true">
+                            <a href="{% url 'customer-scatter-plot' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-analytics"><span></span></i>
+                                <span class="m-menu__link-text">Customer Scatter Plot</span>
+                            </a>
+                        </li> -->
+
+
+                        <!-- <li class="m-menu__item {% if active_page == 'waterfall-chart' %}m-menu__item--active{% endif %}"
+                            aria-haspopup="true">
+                            <a href="{% url 'waterfall-chart' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-analytics"><span></span></i>
+                                <span class="m-menu__link-text">Pocket Margin Waterfalls</span>
+                            </a>
+                        </li> -->
+
+                        <li class="m-menu__item {% if active_page == 'histogram' %}m-menu__item--active{% endif %}"
+                            aria-haspopup="true">
+                            <a href="{% url "histogram-chart" %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-analytics"><span></span></i>
+                                <span class="m-menu__link-text">Histograms</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+            <!-- END: Visualization & Analytics -->
+
+            <!-- BEGIN: user settings -->
+            <li class="m-menu__item  m-menu__item--submenu {% if request.get_full_path == "/admin/add" %}m-menu__item--active {% endif %} m-menu__item--open"
+                aria-haspopup="true" m-menu-submenu-toggle="hover">
+                <a href="javascript:;" class="m-menu__link m-menu__toggle">
+                    <i class="m-menu__link-icon flaticon-user-settings"></i>
+                    <span class="m-menu__link-text">Admin</span>
+                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                </a>
+                <div class="m-menu__submenu"><span class="m-menu__arrow"></span>
+                    <ul class="m-menu__subnav">
+
+                        {#                        <li class="m-menu__item" aria-haspopup="true">#}
+                        {#                            <a href="" class="m-menu__link">#}
+                        {#                                <i class="m-menu__link-bullet m-menu__link-bullet--dot"><span></span></i>#}
+                        {#                                <span class="m-menu__link-text">All Admin</span>#}
+                        {#                            </a>#}
+                        {#                        </li>#}
+
+                        <li class="m-menu__item {% if request.get_full_path == '/admin/add' %}m-menu__item--active{% endif %}"
+                            aria-haspopup="true">
+                            <a href="{% url 'add-new-admin' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-user-add"></i>
+                                <span class="m-menu__link-text">Add New Admin</span>
+                            </a>
+                        </li>
+
+                        <li class="m-menu__item {% if request.get_full_path == '/admin/add' %}m-menu__item--active{% endif %}"
+                            aria-haspopup="true">
+                            <a href="{% url 'admin-settings' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-user-add"></i>
+                                <span class="m-menu__link-text">Settings</span>
+                            </a>
+                        </li>
+
+                        <li class="m-menu__item"
+                            aria-haspopup="true">
+                            <a href="{% url 'logout' %}" class="m-menu__link">
+                                <i class="m-menu__link-icon flaticon-logout"></i>
+                                <span class="m-menu__link-text">Logout</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+            <!-- END: user settings -->
+        </ul>
+    </div>
+
+    <!-- END: Aside Menu -->
+</div>

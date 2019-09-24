@@ -1,0 +1,401 @@
+{% load templatetags %}
+{% load humanize %}
+{% load templatetags %}
+{% block content %}
+
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Product Scatter Plot Chart</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="chartjs-loader" id="chartjs-loader"><i
+                                    class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Generating product scatter plot chart...</p></div>
+                            <div id="chart-data-error" class="alert alert-danger" style="display: none;">Chart data not
+                                yet ready
+                            </div>
+                            <canvas id="product-scatter-plot-canvas" style="display: none;"
+                                    data-product="{{ product }}" data-year="{{ year }}" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Product Scatter Plot Chart Data</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m-portlet__body position-relative">
+                    <div class="chartjs-loader" id="table-data-loader" style="display: flex;"><i
+                            class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                        <p class="m-0">Loading product scatter plot data...</p>
+                    </div>
+                    <div class="row" id="scatter-load-chart-data" style="display: none;">
+                        <div class="col-md-12">
+                            {% if items %}
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Customer Group</th>
+                                        <th>Volume (MT)</th>
+                                        <th>Pocket Margin (%)</th>
+                                        <th>Sold-To Region</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td>{{ item.customer_group_name }}</td>
+                                            <td>{{ item.sales_volume_mt|intcomma }}</td>
+                                            <td>{{ item.pocket_margin_percentage }}</td>
+                                            <td>{{ item.sold_to_region }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-danger w-100">No data found</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Generates List Prices</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="chartjs-loader-generating-data" id="chartjs-loader-generating-data" style="display: none;">
+                                <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Loading generating list prices ...</p>
+                            </div>
+                            <div id="generate-list-prices" data-year="{{ year }}" style="display: none;" data-product="{{ product }}"></div>
+                            <!-- /#generate-list-prices -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<script>
+
+product_scatter_plot_canvas = document.getElementById(
+    "product-scatter-plot-canvas"
+);
+
+generate_scatter_chart = (dataParams) => {
+    $(el_id('product-scatter-plot-canvas-display')).fadeIn(0);
+    $(el_id('chartjs-loader')).fadeIn(0);
+    let scatterChartDataJson = [];
+
+    $.ajax({
+        type: "get",
+        url: '/visualization/scatter-plot-chart-ajax',
+        data: dataParams,
+        beforeSend: () => {
+            $(product_scatter_plot_canvas).fadeOut(0);
+            $(el_id('chartjs-loader')).fadeIn(0);
+            $(el_id('scatter-load-chart-data')).fadeOut(0);
+            $(el_id('table-data-loader')).fadeIn(0);
+            $(el_id('chart-data-error')).fadeOut(0);
+        },
+        success: (response) => {
+            $(el_id('scatter-load-chart-data')).html(response);
+            if (product_scatter_data.length > 0) {
+                product_scatter_data.map(data => {
+                    // console.log(data);
+                    scatterChartDataJson.push({
+                        x: parseFloat(data.sales_volume_mt).toFixed(2),
+                        y: parseFloat(data.pocket_margin_percentage).toFixed(2),
+                        customer_group_name: data.customer_group_name,
+                        sold_to_region: data.sold_to_region
+                    });
+                });
+                $(product_scatter_plot_canvas).fadeIn(0);
+                $(el_id('chartjs-loader')).fadeOut(0);
+                $(el_id('scatter-load-chart-data')).fadeIn(0);
+                $(el_id('scatter-load-chart-data')).fadeIn(0);
+                $(el_id('table-data-loader')).fadeOut(0);
+                $(el_id('chart-data-error')).fadeOut(0);
+                let scatter_plot_data_table = document.getElementById(
+                    "scatter-plot-data-table"
+                );
+
+                // if (scatter_plot_data_table)
+                //     DatatablesExtensionsResponsive.init(scatter_plot_data_table);
+                /* START: scatter plot chart */
+                let color = Chart.helpers.color;
+                let scatterChartData = {
+                    datasets: [
+                        {
+                            borderColor: window.chartColors.blue,
+                            backgroundColor: color(window.chartColors.blue)
+                                .alpha(1)
+                                .rgbString(),
+                            pointRadius: 2.5,
+                            pointHoverRadius: 3,
+                            label: [],
+                            data: scatterChartDataJson
+                        },{
+                            // ceiling/low
+                            data: [{x: 0,y: product_scatter_data_additional_data.low.ceiling.toFixed(2)},{x: product_scatter_data_additional_data.low.volumn_break.toFixed(2),y: product_scatter_data_additional_data.low.ceiling.toFixed(2)}],
+                            borderColor: 'green',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            // ceiling/low
+                            data: [{x: 0,y: product_scatter_data_additional_data.mid.ceiling.toFixed(2)},{x: product_scatter_data_additional_data.mid.volumn_break.toFixed(2),y: product_scatter_data_additional_data.mid.ceiling.toFixed(2)}],
+                            borderColor: 'green',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            // ceiling/low
+                            data: [{x: 0,y: product_scatter_data_additional_data.high.ceiling.toFixed(2)},{x: product_scatter_data_additional_data.high.volumn_break.toFixed(2),y: product_scatter_data_additional_data.high.ceiling.toFixed(2)}],
+                            borderColor: 'green',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            data: [{x: product_scatter_data_additional_data.low.volumn_break.toFixed(2),y: 0},{x: product_scatter_data_additional_data.low.volumn_break.toFixed(2),y: product_scatter_data_additional_data.low.target.toFixed(2)}],
+                            borderColor: 'blue',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            data: [{x: product_scatter_data_additional_data.mid.volumn_break.toFixed(2),y: 0},{x: product_scatter_data_additional_data.mid.volumn_break.toFixed(2),y: product_scatter_data_additional_data.mid.target.toFixed(2)}],
+                            borderColor: 'blue',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            data: [{x: product_scatter_data_additional_data.high.volumn_break.toFixed(2),y: 0},{x: product_scatter_data_additional_data.high.volumn_break.toFixed(2),y: product_scatter_data_additional_data.high.target.toFixed(2)}],
+                            borderColor: 'blue',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            // floor/low
+                            data: [{x: 0,y: product_scatter_data_additional_data.low.floor.toFixed(2)},{x: product_scatter_data_additional_data.low.volumn_break.toFixed(2),y: product_scatter_data_additional_data.low.floor.toFixed(2)}],
+                            borderColor: 'red',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            // floor/mid
+                            data: [{x: 0,y: product_scatter_data_additional_data.mid.floor.toFixed(2)},{x: product_scatter_data_additional_data.mid.volumn_break.toFixed(2),y: product_scatter_data_additional_data.mid.floor.toFixed(2)}],
+                            borderColor: 'red',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },{
+                            // floor/high
+                            data: [{x: 0,y: product_scatter_data_additional_data.high.floor.toFixed(2)},{x: product_scatter_data_additional_data.high.volumn_break.toFixed(2),y: product_scatter_data_additional_data.high.floor.toFixed(2)}],
+                            borderColor: 'red',
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        }
+                    ]
+                    // datasets: [
+                    //     {
+                    //         borderColor: window.chartColors.blue,
+                    //         backgroundColor: color(window.chartColors.blue)
+                    //             .alpha(1)
+                    //             .rgbString(),
+                    //         pointRadius: 2.5,
+                    //         pointHoverRadius: 3,
+                    //         label: [],
+                    //         data: scatterChartDataJson
+                    //     }
+                    // ]
+                };
+                let ctx = document.getElementById("product-scatter-plot-canvas");
+                barGraph = new Chart(ctx, {
+                    type: 'scatter',
+                    data: scatterChartData,
+                    options: {
+                        response: true,
+                        maintainAspectRatio: true,
+                        responsiveAnimationDuration: 1500,
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            enabled: false,
+                            custom: function (tooltipModel) {
+                                // Tooltip Element
+                                let tooltipEl = document.getElementById("chartjs-tooltip");
+
+                                // Create element on first render
+                                if (!tooltipEl) {
+                                    tooltipEl = document.createElement("div");
+                                    tooltipEl.id = "chartjs-tooltip";
+                                    tooltipEl.innerHTML =
+                                        "<div class='card'></div>";
+                                    document.body.appendChild(tooltipEl);
+                                }
+
+                                // Hide if no tooltip
+                                if (tooltipModel.opacity === 0) {
+                                    tooltipEl.style.opacity = 0;
+                                    return;
+                                }
+
+                                // Set caret Position
+                                tooltipEl.classList.remove("above", "below", "no-transform");
+                                if (tooltipModel.yAlign) {
+                                    tooltipEl.classList.add(tooltipModel.yAlign);
+                                } else {
+                                    tooltipEl.classList.add("no-transform");
+                                }
+
+                                // Set Text
+
+                                if (tooltipModel.dataPoints.length > 0) {
+                                    tooltipModel.dataPoints.forEach(function (dataPoint) {
+                                        // console.log(dataPoint);
+                                        let contents = "<ul class='list-unstyled'>" +
+                                            "<li>Customer Name: <strong>" + scatterChartDataJson[dataPoint.index].customer_group_name + "</strong></li> " +
+                                            "<li>Volume (" + default_volume + "): <strong>" + convert_volume(dataPoint.xLabel) + "" + default_volume + "</strong></li> " +
+                                            "<li>Pocket Margin (%): <strong>" + dataPoint.yLabel + "%" + "</strong></li> " +
+                                            "<li>Sold-To Region: <strong>" + scatterChartDataJson[dataPoint.index].sold_to_region + "</strong></li> " +
+                                            "</ul>";
+                                        let tableRoot = tooltipEl.querySelector("div");
+                                        tableRoot.innerHTML = contents;
+                                    });
+                                }
+
+                                // `this` will be the overall tooltip
+                                let position = this._chart.canvas.getBoundingClientRect();
+
+                                // Display, position, and set styles for font
+                                tooltipEl.style.opacity = 1;
+                                tooltipEl.style.position = "absolute";
+                                tooltipEl.style.left =
+                                    position.left + window.pageXOffset + tooltipModel.caretX + "px";
+                                tooltipEl.style.top =
+                                    position.top +
+                                    window.pageYOffset +
+                                    tooltipModel.caretY + 3 + "px";
+                                tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+                                tooltipEl.style.fontSize = tooltipModel.bodyFontSize + "px";
+                                tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+                                tooltipEl.style.padding =
+                                    tooltipModel.yPadding + "px " + tooltipModel.xPadding + "px";
+                                tooltipEl.style.pointerEvents = "none";
+                            }
+                        },
+                        onClick: (evt, item) => {
+                            console.log(item);
+                        },
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: "linear",
+                                    position: "bottom",
+                                    scaleLabel: {
+                                        labelString: "Volume",
+                                        display: true
+                                    }
+                                }
+                            ],
+                            yAxes: [
+                                {
+                                    type: "linear",
+                                    position: "left",
+                                    ticks: {
+                                        userCallback: function (tick) {
+                                            return tick.toString() + "%";
+                                        }
+                                    },
+                                    scaleLabel: {
+                                        labelString: "Pocket Margin",
+                                        display: true
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                });
+            } else {
+                $(product_scatter_plot_canvas).fadeOut(0);
+                $(el_id('chartjs-loader')).fadeOut(0);
+                $(el_id('table-data-loader')).fadeOut(0);
+                $(el_id('scatter-load-chart-data')).fadeIn(0);
+                $(el_id('chart-data-error')).fadeIn(0);
+                return false;
+            }
+        },
+        error: () => {
+            $(product_scatter_plot_canvas).fadeOut(0);
+            $(el_id('chartjs-loader')).fadeOut(0);
+        }
+    });
+};
+
+
+if (product_scatter_plot_canvas) {
+    let product = product_scatter_plot_canvas.dataset.product;
+    let customer = product_scatter_plot_canvas.dataset.customer;
+    let year = product_scatter_plot_canvas.dataset.year;
+    let dataPrams = {};
+    if (product != "None") {
+        dataPrams = {"product": product, "year": year};
+    } else if (customer != "None") {
+        dataPrams = {"customer": customer, "year": year};
+    }
+    product_scatter_plot(dataPrams);
+}
+
+//product-scatter-plot
+function product_scatter_plot(product) {
+    if (barGraph) barGraph.destroy();
+    $(el_id('product-scatter-plot-canvas-display')).fadeOut(0);
+    generate_scatter_chart(product);
+}
+
+
+chartjs_loader_generating_data = el_id('chartjs-loader-generating-data');
+generate_list_prices = el_id('generate-list-prices');
+if (generate_list_prices) {
+    $.ajax({
+        url: '/visualization/scatter-plot-analysis-data',
+        data: {year: generate_list_prices.dataset.year, product: generate_list_prices.dataset.product},
+        beforeSend: (xhr) => {
+            $(chartjs_loader_generating_data).css('display', 'flex');
+        },
+        success: (response) => {
+            // console.log(response);
+            $(generate_list_prices).html(response).fadeIn(0);
+            $(chartjs_loader_generating_data).fadeOut(0);
+        }
+    });
+}
+
+
+</script>
+
+{% endblock %}
+

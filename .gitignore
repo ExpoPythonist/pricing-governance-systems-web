@@ -1,0 +1,10 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/
+__pycache__
+db.sqlite3
+.env
+
+testdb
+phpmyadmin
+db
+.vscode/

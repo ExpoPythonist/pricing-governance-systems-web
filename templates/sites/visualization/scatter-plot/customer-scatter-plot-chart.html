@@ -1,0 +1,129 @@
+{% extends "master.layout.html" %} {% load staticfiles %} {% load templatetags
+%}
+{% load humanize %}
+{% load templatetags %}
+{% block content %}
+    <!-- Begin::Section -->
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">Visualization & Analytics</li>
+                <li class="breadcrumb-item active" aria-current="page">Customer {{ year }}</li>
+            </ol>
+        </nav>
+    </div>
+    <!-- begin::Portlet -->
+    <div class="m-portlet  m-portlet--mobile">
+        <!-- <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">Customers</h3>
+                </div>
+            </div>
+        </div> -->
+        <div class="m-portlet__body position-relative">
+            <!-- Filter section -->
+            <form action="{% url "customer-scatter-plot" %}" method="get">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-md-5">
+                        <div class="form-group m-form__group">
+                            <select class="form-control m-input" name="year" id="exampleSelect1">
+                                {% if years %}
+                                    {% for year_v in years %}
+                                        <option value="{{ year_v.year }}" {% if year_v.year == year %}
+                                                selected="selected"{% endif %}>{{ year_v.year }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group m-form__group">
+                            {#                            <input type="text" class="form-control" name="keyword" placeholder="Search for..."#}
+                            {#                                   value="{% if keyword %}{{ keyword }}{% endif %}">#}
+                            <select class="form-control m-select2" id="all_customer_list_select2" name="customer">
+                                {% if customer %}
+                                    <option value="{{ customer }}" selected="selected">{{ customer }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="form-group m-form__group">
+                            <button class="btn btn-info" type="submit"><i class="flaticon-search"></i></button>
+                            <a href="{% url 'customer-scatter-plot' %}" class="btn btn-danger"><i
+                                    class="flaticon-refresh" aria-hidden="true"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <hr/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    {% if items %}
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            {% if limit != -1 %}
+                            <div>
+                                Showing {{ start|increment_one }} to {{ items|length|data_sum:start }}
+                                of {{ total_data }}
+                                entries
+                            </div>
+                            {% endif %}
+                            {% if total_pages > 1 %}
+                                <ul class="pagination justify-content-end mb-0">
+                                    {{ pagination_links|safe }}
+                                </ul>
+                            {% endif %}
+                        </div>
+
+                        <table class="table table-striped customer-scatterplot-datatable" id="scatter-plot-data-table">
+                            <thead>
+                            <tr>
+                                <th>Customer Group</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url "scatter-plot-data" %}?year={{ year }}&customer={{ item }}"
+                                           class="btn-link">{{ item }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+
+                        {% if items %}
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                {% if limit != -1 %}
+                                <div>
+                                    Showing {{ start|increment_one }} to {{ items|length|data_sum:start }}
+                                    of {{ total_data }}
+                                    entries
+                                </div>
+                                {% endif %}
+                                {% if total_pages > 1 %}
+                                    <ul class="pagination justify-content-end mb-0">
+                                        {{ pagination_links|safe }}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-danger w-100">No data found</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End::Section -->
+
+    <script>
+        let year = {{ year }};
+    </script>
+{% endblock %}

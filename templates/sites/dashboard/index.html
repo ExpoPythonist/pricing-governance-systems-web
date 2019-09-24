@@ -1,0 +1,317 @@
+{% extends "master.layout.html" %}
+{% load staticfiles %}
+{% load templatetags %}
+{% load mathfilters %}
+{% load humanize %}
+{% block style %}
+    <style>
+        .m-subheader {
+            display: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">Dashboard</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ year }}</li>
+            </ol>
+        </nav>
+    </div>
+    <!--Begin::Section-->
+    {% if year_data_info.status == 0 %}
+        <section class="yearly-dashboard-info">
+            <div class="alert alert-warning text-uppercase rounded-0 d-flex align-items-center justify-content-between text-sm-center flex-wrap">
+                <p class="m-0 font-weight-normal">
+                    YOU ARE VIEWING DRAFT DATA FOR {{ year }}. IF YOU LIKE WHAT YOU SEE,
+                    FINALIZE TO PROCEED TO ANALYSIS
+                </p>
+                <div class="d-flex align-items-center justify-content-between">
+                    <form action="{% url 'change-data-status' %}" method="post"
+                          onsubmit="return change_data_status($(this));" class="mr-3">
+                        <input type="hidden" name="year_id" value="{{ year_data_info.id }}">
+                        <input type="hidden" name="status" value="1">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success text-uppercase btn-sm">FINALIZE</button>
+                    </form>
+
+                    <form action="{% url 'change-data-status' %}" method="post"
+                          onsubmit="return change_data_status($(this));">
+                        <input type="hidden" name="year_id" value="{{ year_data_info.id }}">
+                        <input type="hidden" name="status" value="0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger text-uppercase btn-sm">DISCARD DATA</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+
+    <!--Begin::Section-->
+    <section class="yearly-dashboard pb-5">
+                <!--begin::Portlet-->
+        <div class="m-portlet  m-portlet--mobile">
+
+            <!-- <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text">
+                            Dashboard {{ year }}
+                        </h3>
+                    </div>
+                </div>
+            </div> -->
+
+            <div class="m-portlet__body position-relative d-section">
+                <div class="m-portlet__body  m-portlet__body--no-padding">
+                    <div class="m-widget1">
+                        <div class="m-widget1__item">
+                            <div class="row m-row--no-padding align-items-start m-row--col-separator-xl">
+                                
+                                <!-- <div class="col-md-2 text-center">
+                                    <span class="m-widget1__number m--font-info">{% if items %}{{ items.total_freight_revenue|millify }}{% endif %}</span>
+                                    <h3 class="m-widget1__title text-capitalize">TOTAL REVENUE ($)</h3>
+                                </div> -->
+
+                                <div class="text-center" style="width:20%;">
+                                    <span class="m-widget1__number m--font-info">{% if items %}{{ items.number_of_recordes.sum_of_gross_sale_usd|millify }}{% endif %}</span>
+                                    <h3 class="m-widget1__title text-capitalize">TOTAL SALES ($)</h3>
+                                </div>
+
+                                <div class="text-center" style="width:20%;">
+                                    <span class="m-widget1__number m--font-info">{% if items %}{{ items.number_of_recordes.sum_of_sales_volume_mt|convert_volume |millify }}{% endif %}</span>
+                                    <h3 class="m-widget1__title text-capitalize">TOTAL VOLUME ({{ "MT"|get_default_volume }})</h3>
+                                </div>
+
+                                <div class="text-center" style="width:20%;">
+                                    <span class="m-widget1__number m--font-info">{% if items %}{{ items.unique_product_families }}{% endif %}</span>
+                                    <h3 class="m-widget1__title text-capitalize">UNIQUE PRODUCT FAMILIES</h3>
+                                </div>
+
+                                <div class="text-center" style="width:20%;">
+                                    <span class="m-widget1__number m--font-info">{% if items %}{{ items.unique_customer|millify }}{% endif %}</span>
+                                    <h3 class="m-widget1__title">UNIQUE CUSTOMER SHIP-TO</h3>
+                                </div>
+
+                                <div class="text-center" style="width:20%;">
+                                    <span class="m-widget1__number m--font-info">{% if items %}{{ items.total_customer_product|millify }}{% endif %}</span>
+                                    <h3 class="m-widget1__title text-capitalize">UNIQUE CUSTOMER-PRODUCT COMBINATIONS</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!--End::Section-->
+
+    <!--Begin::Section-->
+    <div class="row">
+        <div class="col-xl-6 pr-2">
+            <!--begin:: Widgets/Tasks -->
+            <div class="m-portlet">
+                <div class="m-portlet__body m-portlet__body--no-padding">
+                    <div class="row m-row--no-padding align-items-center">
+                        <div class="col-12 text-center">
+                            <p class="font-weight-bold mb-0">Sales By Profit Center</p>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <div class="chartjs-loader" id="chartjs-loader-one"><i
+                                    class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Generating profit center pie chart...</p>
+                            </div>
+                            <div id="chart-data-error-one" class="alert alert-danger" style="display: none;">Chart data
+                                not yet ready
+                            </div>
+                            <div id="container" style="width:100%; position:relative">
+                                <div class="row m-0 align-items-center justify-content-between">
+                                    <div class="col-md-5">
+                                        <canvas height="350" id="chart-area-profit-center"></canvas>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div id="chartjs-legend-two" class="text-left chartjs-legend"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end:: Widgets/Tasks -->
+        </div>
+        <div class="col-xl-6 pl-2">
+            <!--begin:: Widgets/Support Tickets -->
+            <div class="m-portlet">
+                <div class="m-portlet__body m-portlet__body--no-padding">
+                    <!-- Chart 2 -->
+                    <div class="row m-row--no-padding align-items-start">
+                        <div class="col-12 text-center">
+                            <p class="font-weight-bold mb-0">Freight Costs By Freight Type</p>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <div class="chartjs-loader" id="chartjs-loader-two"><i
+                                    class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Generating freight costs by freight type pie chart...</p>
+                            </div>
+                            <div id="chart-data-error-two" class="alert alert-danger" style="display: none;">Chart data
+                                not yet ready
+                            </div>
+                            <div id="container" style="width:100%; position:relative;">
+                                <div class="row m-0 align-items-center justify-content-between">
+                                    <div class="col-md-5">
+                                        <canvas height="350" id="chart-area-creight-cost-type"></canvas>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div id="chartjs-legend" class="text-left chartjs-legend"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end:: Widgets/Support Tickets -->
+        </div>
+    </div>
+    <!--End::Section-->
+
+
+    <!--Begin::Section-->
+        <div class="row">
+            <div class="col-xl-6 pr-2">
+                <!--begin:: Widgets/Tasks -->
+                <div class="m-portlet">
+                    <div class="m-portlet__body m-portlet__body--no-padding">
+                            <div class="row m-row--no-padding align-items-start">
+                                    <div class="col-md-12">
+                                        <div class="row m-row--no-padding align-items-start justify-content-between m-row--col-separator-xl">
+
+
+                                            <div class="col-md-6 pr-md-5">
+                                                <p class="font-weight-bold mb-0 text-center">Top 10 Product Families by Annual Volume</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Product Family</th>
+                                                        <th class="text-right">Volume ({{ "MT"|get_default_volume }})</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% if items.top_product_families_by_annual_volume %}
+                                                        {% for product in items.top_product_families_by_annual_volume %}
+                                                            <tr>
+                                                                <td>{{ product.product_family }}</td>
+                                                                <td class="text-right">{{ product.total_sales_volume|convert_volume|floatformat:2 |intcomma }} {{ "MT"|get_default_volume }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            
+                                            <div class="col-md-6 pl-md-5">
+                                                <p class="font-weight-bold mb-0 text-center">Top 10 Customers by Annual Volume</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Customer</th>
+                                                        <th class="text-right">Volume ({{ "MT"|get_default_volume }})</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% if items.top_customer_by_annual_volume %}
+                                                        {% for product in items.top_customer_by_annual_volume %}
+                                                            <tr>
+                                                                <td>{{ product.customer_group_name }}</td>
+                                                                <td class="text-right">{{ product.total_sales_volume|convert_volume|floatformat:2 |intcomma }} {{ "MT"|get_default_volume }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    </div>
+                </div>
+                <!--end:: Widgets/Tasks -->
+            </div>
+            <div class="col-xl-6 pl-2">
+                <!--begin:: Widgets/Support Tickets -->
+                <div class="m-portlet">
+                    <div class="m-portlet__body m-portlet__body--no-padding">
+                            <div class="row m-row--no-padding align-items-start">
+                                    <div class="col-md-12">
+                                        <div class="row m-row--no-padding align-items-start justify-content-between m-row--col-separator-xl">
+
+
+                                            <div class="col-md-6 pr-md-5">
+                                                <p class="font-weight-bold mb-0 text-center">Top 10 Product Families by Annual Sales</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Product Family</th>
+                                                        <th class="text-right">Sales ($)</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% if items.top_product_families_by_annual_sales %}
+                                                        {% for product in items.top_product_families_by_annual_sales %}
+                                                            <tr>
+                                                                <td>{{ product.product_family }}</td>
+                                                                <td class="text-right">${{ product.total_gross_sale_usd|floatformat:2 |intcomma }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+
+                                            
+                                            <div class="col-md-6 pl-md-5">
+                                                <p class="font-weight-bold mb-0 text-center">Top 10 Customers by Annual Sales</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Customer</th>
+                                                        <th class="text-right">Sales ($)</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% if items.top_customer_by_annual_sales %}
+                                                        {% for product in items.top_customer_by_annual_sales %}
+                                                            <tr>
+                                                                <td>{{ product.customer_group_name }}</td>
+                                                                <td class="text-right">${{ product.total_gross_sale_usd|floatformat:2 |intcomma }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                    </div>
+                </div>
+                <!--end:: Widgets/Support Tickets -->
+            </div>
+        </div>
+        <!--End::Section-->
+
+
+    </section>
+    <!--End::Section-->
+{% endblock %}
+
+{% block script %}
+    <script>
+        let year = {{ year }};
+    </script>
+{% endblock %}

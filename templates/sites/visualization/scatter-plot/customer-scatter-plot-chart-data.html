@@ -1,0 +1,115 @@
+{% extends "master.layout.html" %} {% load staticfiles %} {% load templatetags
+%}
+{% load humanize %}
+{% load templatetags %}
+{% block content %}
+    <!-- Begin::Section -->
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">Visualization & Analytics</li>
+                <li class="breadcrumb-item" aria-current="page"><a
+                        href="{% url "customer-scatter-plot" %}?year={{ year }}">Customer {{ year }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Scatter plot chart</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- begin::Portlet -->
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Customer Scatter Plot Chart Data</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <div class="chartjs-loader" id="table-data-loader" style="display: flex;"><i
+                            class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                        <p class="m-0">Loading customer scatter plot data...</p>
+                    </div>
+                    <div class="row" id="scatter-load-chart-data" style="display: none;">
+                        <div class="col-md-12">
+                            {% if items %}
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Product Family</th>
+                                        <th>Volume (MT)</th>
+                                        <th>Pocket Margin (%)</th>
+                                        <th>Sold-To Region</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td>{{ item.product_family }}</td>
+                                            <td>{{ item.sales_volume_mt|floatformat:2|intcomma }}MT</td>
+                                            <td>{{ item.pocket_margin_percentage|floatformat:2 }}%</td>
+                                            <td>{{ item.sold_to_region }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-danger w-100">No data found</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End::Section -->
+        </div>
+        <div class="col-md-6">
+            <!-- begin::Portlet -->
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Customer scatter plot chart</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="chartjs-loader" id="chartjs-loader"><i
+                                    class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Generating customer scatter plot chart...</p></div>
+                            <div id="chart-data-error" class="alert alert-danger" style="display: none;">Chart data not
+                                yet ready
+                            </div>
+                            <canvas id="product-scatter-plot-canvas" style="display: none;"
+                                    data-product="{{ product }}" data-year="{{ year }}" data-customer="{{ customer }}"
+                                    height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Generates List Prices</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="chartjs-loader-generating-data" id="chartjs-loader-generating-data" style="display: none;">
+                                <i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Loading generating list prices ...</p>
+                            </div>
+                            <div id="generate-list-prices" data-year="{{ year }}" style="display: none;"></div>
+                            <!-- /#generate-list-prices -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

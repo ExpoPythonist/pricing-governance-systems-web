@@ -1,0 +1,51 @@
+{% load staticfiles %}
+{% load templatetags %}
+{% load humanize %}
+{% load templatetags %}
+<div class="col-md-12">
+    {% if items.data %}
+        <table class="table table-striped product-customer-scatterplot-datatable" id="scatter-plot-data-table">
+            <thead>
+            <tr>
+                <th>Customer Group</th>
+                <th class="text-right">Volume ({{ "MT"|get_default_volume }})</th>
+                <th class="text-right">Pocket Margin (%)</th>
+                <th class="text-center">Sold-To Region</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items.data %}
+                <tr>
+                    <td>
+                        <a href="javascript:void(0);" onclick="get_product_waterfall_data('{{ year }}','{{ product }}', '{{item.customer_group_name}}');" class="btn-link">{{ item.customer_group_name }} </a>
+                    </td>
+                    <td class="text-right">{{ item.sales_volume_mt|convert_volume|floatformat:2 |intcomma }} {{ "MT"|get_default_volume }}</td>
+                    <td class="text-right">{{ item.pocket_margin_percentage|floatformat:2 |intcomma }}%</td>
+                    <td class="text-center">{{ item.sold_to_region }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-danger w-100">No data found</div>
+    {% endif %}
+</div>
+
+<script type="text/javascript">
+    product_scatter_data = {{ items.data|safe }};
+    product_scatter_data_additional_data = {{ items.additional_data|safe }};
+
+    $(document).ready(function () {
+        $('.product-customer-scatterplot-datatable').DataTable({
+            "scrollY": "400px",
+            "scrollCollapse": true,
+            "paging": false,
+            columnDefs: [
+                { type: 'natural', targets: 1 }
+            ],
+            searching: false,
+            info: false,
+            // destroy: true,
+        });
+    });
+</script>

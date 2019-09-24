@@ -1,0 +1,35 @@
+{% load staticfiles %}
+{% load templatetags %}
+{% load humanize %}
+{% load templatetags %}
+{% if items %}
+    <div class="col-md-12">
+        <table class="table table-striped" id="scatter-plot-data-table">
+            <thead>
+            <tr>
+                <th>Product Family</th>
+                <th class="text-right">Volume (MT)</th>
+                <th class="text-right">Pocket Margin (%)</th>
+                <th class="text-center">Sold-To Region</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.product_family }}</td>
+                    <td class="text-right">{{ item.sales_volume_mt|floatformat:2 |intcomma }} MT</td>
+                    <td class="text-right">{{ item.pocket_margin_percentage|floatformat:2 |intcomma }}%</td>
+                    <td class="text-center">{{ item.sold_to_region }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-danger w-100">No data found</div>
+{% endif %}
+
+<script type="text/javascript">
+    let product_scatter_data =
+    {{ items|safe }}
+</script>

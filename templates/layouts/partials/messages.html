@@ -1,0 +1,30 @@
+{% if messages %}
+    {% for message in messages %}
+        {% if request.get_full_path == "/admin/login" %}
+            <div class="m-alert m-alert--outline alert {{ message.tags }} alert-dismissible animated fadeIn alert-fadeout-time-t"
+                 role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+                <span>{{ message }}</span>
+            </div>
+        {% else %}
+            <div class="m-alert m-alert--icon alert {{ message.tags }} border-0 animated fadeIn alert-fadeout-time-t"
+                 style="border-radius: 0;" role="alert">
+                <div class="m-alert__icon">
+                    {% if message.tags == "alert-success" %}
+                        <i class="la la-check-circle"></i>
+                    {% else %}
+                        <i class="la la-warning"></i>
+                    {% endif %}
+                </div>
+                <div class="m-alert__text">
+                    {{ message }}
+                </div>
+                <div class="m-alert__close">
+                    <button type="button" class="close" data-close="alert" aria-label="Close">
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div id="status"></div>

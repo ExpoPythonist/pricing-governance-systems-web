@@ -1,0 +1,276 @@
+{% load templatetags %}
+{% load humanize %}
+{% load mathfilters %}
+{% block content %}
+        <style>
+    
+            .bar.total rect {
+                fill: steelblue;
+            }
+    
+            .bar.positive rect {
+                fill: darkolivegreen;
+            }
+    
+            .bar.negative rect {
+                fill: crimson;
+            }
+    
+            .bar line.connector {
+                stroke: grey;
+                stroke-dasharray: 3;
+            }
+    
+            .bar text {
+                fill: white;
+                font: 12px sans-serif;
+                text-anchor: middle;
+            }
+    
+            .axis text {
+                font: 10px sans-serif;
+            }
+    
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: #000;
+                shape-rendering: crispEdges;
+            }
+    
+        </style>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                <!-- begin::Portlet -->
+                <div class="m-portlet  m-portlet--mobile">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">Waterfall chart</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body position-relative">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group d-flex align-items-center justify-content-center">
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="button" class="btn btn-info waterfall-btn"
+                                                onclick="return regenerate_waterfall($(this),'single')">$ Per MT
+                                        </button>
+                                        <button type="button" class="btn btn-default waterfall-btn"
+                                                onclick="return regenerate_waterfall($(this),'total')">Total
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="chartjs-loader" id="chartjs-loader" style="display: none;"><i
+                                        class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                    <p class="m-0">Loading...</p></div>
+            {#                            <canvas id="pocket-margin-waterfall-canvas" height="275" style="display: none;"></canvas>#}
+                            <div id="pocket-margin-waterfall-canvas" style="height: 500px; max-width: 920px; margin: 0px auto;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-md-12">
+                <!-- begin::Portlet -->
+                <div class="m-portlet  m-portlet--mobile">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">Waterfall Chart Data</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body position-relative">
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% if items %}
+                                    <div class="row">
+                                        <div class="col-md-12 d-flex flex-wrap align-items-center justify-content-md-between justify-content-sm-center">
+                                            <h4 class="font-weight-light">Product: {{ items.product_family }}</h4>
+                                            <h4 class="font-weight-light">Customer: {{ items.customer_group_name }}</h4>
+                                            <h4 class="font-weight-light">Total Volume: {{ items.sales_volume_mt|convert_volume|floatformat:2 }} {{ "MT"|get_default_volume }}</h4>
+                                            <h4 class="font-weight-light">Total Sales: ${{ items.total.invoice_price|floatformat:2 }}</h4>
+                                        </div>
+                                    </div>
+                                    <table class="table table-striped" id="scatter-plot-data-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Element</th>
+                                            <th class="text-right">Per MT</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>Invoice Price ($)</td>
+                                            <td class="text-right">${{ items.single.invoice_price|floatformat:2|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.invoice_price|floatformat:2|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Freight Costs ($)</td>
+                                            <td class="text-right">${{ items.single.freight_costs|floatformat:2|abs|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.freight_costs|floatformat:2|abs|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Freight Revenue ($)</td>
+                                            <td class="text-right">${{ items.single.freight_revenue|floatformat:2|abs|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.freight_revenue|floatformat:2|abs|intcomma }}</td>
+                                        </tr>
+    
+                                        <tr>
+                                            <td>Other Adjustments ($)</td>
+                                            <td class="text-right">${{ items.single.other_discounts_and_rebates|floatformat:2|abs|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.other_discounts_and_rebates|floatformat:2|abs|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pocket Price ($)</td>
+                                            <td class="text-right">${{ items.single.pocket_price|floatformat:2|abs|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.pocket_price|floatformat:2|abs|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>COGS ($)</td>
+                                            <td class="text-right">${{ items.single.cogs|floatformat:2|abs|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.cogs|floatformat:2|abs|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pocket Margin ($)</td>
+                                            <td class="text-right">${{ items.single.pocket_margin|floatformat:2|abs|intcomma }}</td>
+                                            <td class="text-right">${{ items.total.pocket_margin|floatformat:2|abs|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pocket Margin (%)</td>
+                                            <td class="text-right">{{ items.single.pocket_margin_percentage|floatformat:2|abs|intcomma }}%</td>
+                                            <td class="text-right">{{ items.total.pocket_margin_percentage|floatformat:2|abs|intcomma }}%</td>
+                                        </tr>
+    
+                                        </tbody>
+                                    </table>
+    
+                                {% else %}
+                                    <div class="alert alert-danger">No data found</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End::Section -->
+            </div>
+            
+        </div>
+    
+    
+    {% endblock %}
+    
+    {% block script %}
+        <script type="text/javascript">
+            single_waterfall_data = {{ items.single|safe }};
+            total_waterfall_data = {{ items.total|safe }};
+
+            /* BEGIN: Waterfall chart */
+            pocket_margin_waterfall_canvas = el_id("pocket-margin-waterfall-canvas");
+
+
+            generate_waterfall_chart = (data, title_text = "Pocket Price Waterfall in $ per MT") => {
+                let dataPoints = [
+                    {
+                        label: "Invoice Price",
+                        y: parseFloat(data.invoice_price.toFixed(2))
+                    },
+                    {
+                        label: 'Freight Costs',
+                        y: parseFloat(data.freight_costs.toFixed(2))
+                    },
+                    {
+                        label: 'Freight Revenue',
+                        y: parseFloat(data.freight_revenue.toFixed(2))
+                    },
+                    {
+                        label: 'Other Adjustments',
+                        y: parseFloat(data.other_discounts_and_rebates.toFixed(2))
+                    },
+                    {
+                        label: 'Pocket Price',
+                        y: parseFloat(data.pocket_price.toFixed(2)),
+                        color: "#C7C7C7"
+                    },
+                    {
+                        label: 'COGS',
+                        y: parseFloat(data.cogs.toFixed(2))
+                    },
+                    {
+                        label: 'Pocket Margin',
+                        y: parseFloat(data.pocket_margin.toFixed(2)),
+                        color: "#C7C7C7"
+                    },
+                    // {
+                    //     label: 'Pocket Margin %',
+                    //     y: parseFloat(data.pocket_margin_percentage.toFixed(2))
+                    // },
+                    {
+                        label: "Sub Total",
+                        y: parseFloat(data.pocket_margin.toFixed(2)),
+                        color: "#C7C7C7"
+                    }
+                ];
+                var chart = new CanvasJS.Chart(pocket_margin_waterfall_canvas, {
+                    theme: "light1", // "light1", "ligh2", "dark1", "dark2"
+                    animationEnabled: true,
+                    title: {
+                        text: title_text,
+                        fontSize:22
+                    },
+                    axisY: {
+                        title: "",
+                        tickLength: 0,
+                        lineThickness: 0,
+                        margin: 0,
+                        valueFormatString: " ",//comment this to show numeric,
+                    },
+                    data: [{
+                        type: "waterfall",
+                        indexLabel: "",
+                        indexLabelFontColor: "#EEEEEE",
+                        indexLabelPlacement: "inside",
+                        yValueFormatString: "",
+                        risingColor: "#5B9BD5",
+                        fallingColor: "#ED7D31",
+                        lineColor: "#222222",
+                        dataPoints: dataPoints
+                    }]
+                });
+                chart.render();
+            };
+            if (pocket_margin_waterfall_canvas) {
+                let data = single_waterfall_data;
+                generate_waterfall_chart(data);
+            }
+
+
+            function regenerate_waterfall($this, type) {
+                $(".waterfall-btn").removeClass('btn-info');
+                $(".waterfall-btn").addClass('btn-default');
+                if ($this.hasClass('btn-default')) {
+                    $this.removeClass('btn-default');
+                    $this.addClass('btn-info');
+                }
+                if (type == "single") {
+                    let data3 = single_waterfall_data;
+                    generate_waterfall_chart(data3);
+                } else if (type == "total") {
+                    let data2 = total_waterfall_data;
+                    generate_waterfall_chart(data2, "Pocket Price Waterfall in $ total MT");
+                }
+            }
+
+            /* END: Waterfall chart */
+        </script>
+    {% endblock %}

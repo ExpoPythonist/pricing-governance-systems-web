@@ -1,0 +1,121 @@
+{% extends "master.layout.html" %}
+
+{% block content %}
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">Admin</li>
+                <li class="breadcrumb-item active" aria-current="page">Add new user</li>
+            </ol>
+        </nav>
+    </div>
+    <!--begin::Portlet-->
+    <div class="m-portlet">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">
+                        Add New User
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <!--begin::Form-->
+        <form action="{% url "add-new-admin" %}" class="m-form m-form--fit m-form--label-align-right" id="m_form_1"
+              method="post">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+                <div class="m-form__content">
+                    <div class="m-alert m-alert--icon alert alert-danger m--hide" role="alert" id="m_form_1_msg">
+                        <div class="m-alert__icon">
+                            <i class="la la-warning"></i>
+                        </div>
+                        <div class="m-alert__text">
+                            Oh snap! Change a few things up and try submitting again.
+                        </div>
+                        <div class="m-alert__close">
+                            <button type="button" class="close" data-close="alert" aria-label="Close">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+{#                <div class="form-group m-form__group row">#}
+{#                    <label class="col-form-label col-lg-3 col-sm-12">Profile picture *</label>#}
+{#                    <div class="col-lg-6 col-md-9 col-sm-12">#}
+{#                        <input type="file" class="form-control m-input m-input--square" id="profile_img"#}
+{#                               name="profile_img"#}
+{#                               accept="image/*">#}
+{#                        <input type="hidden" id="base64_user_img" name="base64_user_img" value="">#}
+{#                           <span class="m-form__help">Choose profile picture.</span>#}
+{#                    </div>#}
+{#                </div>#}
+
+                <div class="form-group m-form__group row">
+                    <label class="col-form-label col-lg-3 col-sm-12">Email *</label>
+                    <div class="col-lg-6 col-md-9 col-sm-12">
+                        <input type="text" class="form-control m-input m-input--square" name="email"
+                               placeholder="Email">
+                        <span class="m-form__help">Please enter email address.</span>
+                    </div>
+                </div>
+                <div class="form-group m-form__group row">
+                    <label class="col-form-label col-lg-3 col-sm-12">Username *</label>
+                    <div class="col-lg-6 col-md-9 col-sm-12">
+                        <input type="text" class="form-control m-input m-input--square" name="username"
+                               placeholder="Username">
+                        <span class="m-form__help">Please enter username.</span>
+                    </div>
+                </div>
+
+                <div class="form-group m-form__group row">
+                    <label class="col-form-label col-lg-3 col-sm-12">Password *</label>
+                    <div class="col-lg-6 col-md-9 col-sm-12">
+                        <input type="password" class="form-control m-input m-input--square" id="password"
+                               name="password"
+                               placeholder="Password">
+                        <span class="m-form__help">Please enter password.</span>
+                    </div>
+                </div>
+
+                <div class="form-group m-form__group row">
+                    <label class="col-form-label col-lg-3 col-sm-12">Confirm Password *</label>
+                    <div class="col-lg-6 col-md-9 col-sm-12">
+                        <input type="password" class="form-control m-input m-input--square" name="confirm_password"
+                               placeholder="Confirm password" id="confirm_password">
+                        <span class="m-form__help">Please enter confirm password.</span>
+                    </div>
+                </div>
+                <!--  1= General User, 2= Account rep, 3= System Administrative -->
+                <div class="form-group m-form__group row">
+                    <label class="col-form-label col-lg-3 col-sm-12" for="user_type">User Type *</label>
+                    <div class="col-lg-6 col-md-9 col-sm-12">
+                        <select class="form-control m-input m-input--square" name="user_type"
+                                id="user_type">
+                            <option value="1" selected="selected">General User</option>
+                            <option value="2">Account rep</option>
+                            <option value="3">System Administrative</option>
+                        </select>
+                        <span class="m-form__help">Please select user type.</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="m-portlet__foot m-portlet__foot--fit">
+                <div class="m-form__actions m-form__actions">
+                    <div class="row">
+                        <div class="col-lg-9 ml-lg-auto">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                            <button type="reset" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!--end::Form-->
+    </div>
+
+    <!--end::Portlet-->
+{% endblock %}

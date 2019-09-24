@@ -1,0 +1,157 @@
+{% extends "master.layout.html" %}
+{% load staticfiles %}
+{% load templatetags %}
+{% load humanize %}
+{% block content %}
+    <!-- Begin::Section -->
+    <div class="m-grid__item m-grid__item--fluid m-wrapper">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item">Visualization & Analytics</li>
+                <li class="breadcrumb-item active" aria-current="page">Histogram {{ year }}</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- begin::Portlet -->
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Histogram Chart Data</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <!-- Filter section -->
+                    <form action="{% url "histogram-chart" %}" method="get">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="form-group m-form__group">
+                                    <select class="form-control m-input" name="year" id="exampleSelect1">
+                                        {% if years %}
+                                            {% for year_v in years %}
+                                                <option value="{{ year_v.year }}" {% if year_v.year == year %}
+                                                        selected="selected"{% endif %}>{{ year_v.year }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="form-group m-form__group">
+                                    <button class="btn btn-info" type="submit"><i class="flaticon-search"></i></button>
+                                    <a href="{% url 'histogram-chart' %}" class="btn btn-danger"><i
+                                            class="flaticon-refresh" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% if items %}
+                                {% if items %}
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        {% if total_pages > 1 %}
+                                            <ul class="pagination justify-content-end mb-0">
+                                                {{ pagination_links|safe }}
+                                            </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                <table class="table table-striped histogram-datatable" id="histogram-data-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th class="text-right">Gross Sales ($)</th>
+                                        <th class="text-right">Pocket Margin (%)</th>
+                                        <th class="text-right">Total Sale (%)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td>{{ item.customer_group_name }}</td>
+                                            <td class="text-right">${{ item.gross_sale_usd|floatformat:2|intcomma }}</td>
+                                            <td class="text-right">{{ item.pocket_margin_percentage|floatformat:2|intcomma }}%</td>
+                                            <td class="text-right">{{ item.calculated_total_sale|floatformat:2|intcomma }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% if items %}
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        {% if total_pages > 1 %}
+                                            <ul class="pagination justify-content-end mb-0">
+                                                {{ pagination_links|safe }}
+                                            </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-danger">No data found</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End::Section -->
+        </div>
+
+        <div class="col-md-6">
+            <!-- begin::Portlet -->
+            <div class="m-portlet  m-portlet--mobile">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">Histogram chart</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body position-relative">
+                    <div class="row">
+                        <div class="col-md-12" id="histogram-band-width-input" style="display: none;">
+                            <div class="form-group">
+                                <div class="d-flex align-items-center">
+                                    <label for="histogram-band" class="font-weight-bold mb-0 mr-2">Bandwidth: </label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="number" id="histogram-band" value="5"
+                                               placeholder="Bandwidth">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-info" type="button"
+                                                    onclick="return update_histogram_by_bandwidth($(this));">
+                                                <i class="flaticon-search"></i>
+                                            </button>
+                                            <a href="{% url 'histogram-chart' %}" class="btn btn-danger"><i
+                                                    class="flaticon-refresh" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="chartjs-loader" id="chartjs-loader"><i
+                                    class="fa fa-spinner fa-spin fa-fw fa-2x"></i>
+                                <p class="m-0">Generating histogram chart...</p></div>
+                            <div id="chart-data-error" class="alert alert-danger" style="display: none;">Chart data not
+                                yet ready
+                            </div>
+
+                            <canvas id="histogram-canvas" data-year="{{ year }}" style="display: none;"
+                                    height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

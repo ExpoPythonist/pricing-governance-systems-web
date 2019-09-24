@@ -1,0 +1,50 @@
+{% load mathfilters %}
+{% load humanize %}
+{% if table_data %}
+
+    <table class="table table-bordered analyze-data-table">
+        <thead>
+{#        <tr>#}
+{#            <th colspan="5" class="text-center">Model generated, based on percentiles</th>#}
+{#        </tr>#}
+        <tr>
+{#            <th>Pocket Margin Threshold Percentiles</th>#}
+            <th></th>
+            <th class="text-right">Volume Break</th>
+            <th class="text-right">Target</th>
+            <th class="text-right">Ceiling</th>
+            <th class="text-right">Floor</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for data in table_data %}
+            <tr>
+                <td>Low Band</td>
+                <td class="text-right">{{ data.low.volumn_break|floatformat:2 |intcomma }}</td>
+                <td class="text-right">{{ data.low.target|floatformat:2 |intcomma }}%</td>
+                <td class="text-right">{{ data.low.ceiling|floatformat:2 |intcomma }}%</td>
+                <td class="text-right">{{ data.low.floor|floatformat:2 |intcomma }}%</td>
+            </tr>
+            <tr>
+                <td>Mid Band</td>
+                 <td class="text-right">{{ data.mid.volumn_break|floatformat:2 |intcomma }}</td>
+                <td class="text-right">{{ data.mid.target|floatformat:2 |intcomma }}%</td>
+                <td class="text-right">{{ data.mid.ceiling|floatformat:2 |intcomma }}%</td>
+                  <td class="text-right">{{ data.mid.floor|floatformat:2 |intcomma }}%</td>
+            </tr>
+            <tr>
+                <td>High Band</td>
+                 <td class="text-right">{{ data.high.volumn_break|floatformat:2 |intcomma }}</td>
+                <td class="text-right">{{ data.high.target|floatformat:2 |intcomma }}%</td>
+                <td class="text-right">{{ data.high.ceiling|floatformat:2 |intcomma }}%</td>
+                <td class="text-right">{{ data.high.floor|floatformat:2 |intcomma }}%</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-danger">
+        Data not found!
+    </div>
+{% endif %}

@@ -1,0 +1,64 @@
+{% load staticfiles %}
+{% load templatetags %}
+<!-- begin::Head -->
+<head>
+    <meta charset="utf-8"/>
+    <title>Pricing Governance system | Dashboard</title>
+    <meta name="description" content="Latest updates and statistic charts">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+
+    <!--begin::Web font -->
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+    <script>
+        WebFont.load({
+            google: {"families": ["Poppins:300,400,500,600,700", "Roboto:300,400,500,600,700"]},
+            active: function () {
+                sessionStorage.fonts = true;
+            }
+        });
+    </script>
+
+    <!--end::Web font -->
+
+    <!--begin::Global Theme Styles -->
+
+
+    <!--begin::Page Vendors -->
+    <link rel="stylesheet" href="{% static 'assets/vendors/vendors/metronic/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/vendors/fontawesome5/css/all.min.css' %}">
+    <!--end::Page Vendors -->
+
+    <link href="{% static 'assets/vendors/base/vendors.bundle.css' %} " rel="stylesheet" type="text/css"/>
+
+    <link href="{% static 'assets/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
+    <!--end::Global Theme Styles -->
+
+    <link href="{% static 'assets/vendors/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css"/>
+    <!-- Load custom styles -->
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet" type="text/css">
+
+    <link rel="shortcut icon" href="{% static 'assets/default/media/img/logo/favicon.ico' %}"/>
+
+    <script>
+        let default_volume = '{{ "MT"|get_default_volume }}';
+
+        let convert_volume = (value) =>{
+            let frm = "MT";
+            let target = default_volume;
+
+            if (frm == target){
+                return value
+            }
+            else if (frm == "MT"){
+                if (target == "KG"){
+                    return (value * 1000)
+                }
+                else if (target == "LB"){
+                    return (value *  2204.623)
+                }
+            }
+
+            return value
+        }
+    </script>
+</head>
